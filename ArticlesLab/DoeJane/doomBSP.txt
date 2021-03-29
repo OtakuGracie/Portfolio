@@ -1,0 +1,5 @@
+The 1993 video game doom was the first game to make use of binary space partitioning.
+The method id software developers of doom had used to render their prior 3d game was far too slow for the complex levels of doom with hardware available at the time.
+Lead programmer John Carmack learned about binary space partitioning while looking through old military documents.
+Binary space partitioning was originally created in 1969 for potential use in rendering in flight simulators.
+A 1980 paper introduced the BSP tree, a data structure that helped to simplify rendering using Binary Space Partitioning.
