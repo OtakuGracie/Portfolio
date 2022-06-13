@@ -10,6 +10,7 @@ Features:
 * Edit all of this move data
 * Save changes to binary file that can be spliced into the roms with other tools
 * Create data for new moves (animation data and in-game name still must be setup with other tools)
+* Support for types added through romhacking beyond the originals
 
 
 
