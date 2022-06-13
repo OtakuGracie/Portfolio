@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PokemonHGSSMoveEditor
@@ -26,10 +21,9 @@ namespace PokemonHGSSMoveEditor
             accuracyMaskTxtBx.Validating += new CancelEventHandler(accuracyMaskTxtBx_Validating);
             ppMaskTxtBx.Validating += new CancelEventHandler(ppMaskTxtBx_Validating);
             effectChanceMaskTxtBx.Validating += new CancelEventHandler(effectChanceMaskTxtBx_Validating);
-            flag1MaskTxtBx.Validating += new CancelEventHandler(flag1MaskTxtBx_Validating);
             priorityMaskTxtBx.Validating += new CancelEventHandler(priorityMaskTxtBx_Validating);
-            flag2MaskTxtBx.Validating += new CancelEventHandler(flag2MaskTxtBx_Validating);
-            flag3MaskTxtBx.Validating += new CancelEventHandler(flag3MaskTxtBx_Validating);
+            contestEffectMaskTxtBx.Validating += new CancelEventHandler(contestEffectMaskTxtBx_Validating);
+            this.FormClosing += new FormClosingEventHandler(MainForm_FormClosing);
         }
 
         private void mainForm_Load(object sender, EventArgs e)
@@ -41,16 +35,13 @@ namespace PokemonHGSSMoveEditor
 
             foreach (ContestCondition condition in Enum.GetValues(typeof(ContestCondition)))
             {
-                contestComboBx.Items.Add(condition);
+                contestConditionComboBx.Items.Add(condition);
             }
 
             foreach (Target target in Enum.GetValues(typeof(Target)))
             {
                 targetComboBx.Items.Add(target);
             }
-
-            classComboBx.Items.Add(00);
-            classComboBx.Items.Add(01);
 
             controller.setView(this);
             controller.setModel(MoveEditorModel.getInstance());
@@ -60,25 +51,34 @@ namespace PokemonHGSSMoveEditor
 
             if (!selectFile())
             {
-                this.close();
+                this.Close();
             }
         }
+
         private void resetButton_Click(object sender, EventArgs e)
         {
-            effectMaskTxtBx.Text = controller.getOldValue(Constants.EFFECTINDEX).ToString();
-            classComboBx.SelectedIndex = controller.getOldValue(Constants.CLASSINDEX);
-            categoryComboBx.SelectedIndex = controller.getOldValue(Constants.CATEGORYINDEX);
-            powerMaskTxtBx.Text = controller.getOldValue(Constants.POWERINDEX).ToString();
-            typeComboBx.SelectedIndex = controller.getOldValue(Constants.TYPEINDEX);
-            accuracyMaskTxtBx.Text = controller.getOldValue(Constants.ACCURACYINDEX).ToString();
-            ppMaskTxtBx.Text = controller.getOldValue(Constants.PPINDEX).ToString();
-            effectChanceMaskTxtBx.Text = controller.getOldValue(Constants.EFFECTCHANCEINDEX).ToString();
-            targetComboBx.SelectedItem = (Target)controller.getOldValue(Constants.TARGETINDEX);
-            flag1MaskTxtBx.Text = controller.getOldValue(Constants.FLAG1INDEX).ToString();
-            priorityMaskTxtBx.Text = ((sbyte)controller.getOldValue(Constants.PRIORITYINDEX)).ToString(); //priority has to be casted to signed byte so that negative priority values displays correctly
-            flag2MaskTxtBx.Text = controller.getOldValue(Constants.FLAG2INDEX).ToString();
-            flag3MaskTxtBx.Text = controller.getOldValue(Constants.FLAG3INDEX).ToString();
-            contestComboBx.SelectedIndex = controller.getOldValue(Constants.CONTESTINDEX);
+            (int[] oldMoveData, bool[] flags) = controller.getOldValues();
+
+            effectMaskTxtBx.Text = oldMoveData[Constants.EFFECTINDEX].ToString();
+            categoryComboBx.SelectedIndex = oldMoveData[Constants.CATEGORYINDEX];
+            powerMaskTxtBx.Text = oldMoveData[Constants.POWERINDEX].ToString();
+            typeComboBx.SelectedIndex = oldMoveData[Constants.TYPEINDEX];
+            accuracyMaskTxtBx.Text = oldMoveData[Constants.ACCURACYINDEX].ToString();
+            ppMaskTxtBx.Text = oldMoveData[Constants.PPINDEX].ToString();
+            effectChanceMaskTxtBx.Text = oldMoveData[Constants.EFFECTCHANCEINDEX].ToString();
+            targetComboBx.SelectedItem = (Target)oldMoveData[Constants.TARGETINDEX];
+            priorityMaskTxtBx.Text = ((sbyte)oldMoveData[Constants.PRIORITYINDEX]).ToString(); //priority has to be casted to signed byte so that negative priority values display correctly
+            contestEffectMaskTxtBx.Text = oldMoveData[Constants.CONTESTEFFECTINDEX].ToString();
+            contestConditionComboBx.SelectedIndex = oldMoveData[Constants.CONTESTCONDITIONINDEX];
+
+            contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
+            protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
+            magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
+            snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
+            mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
+            kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
+            unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+            unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
         }
 
         public void showMoveList(List<string> moveList)
@@ -113,38 +113,43 @@ namespace PokemonHGSSMoveEditor
 
             if (chooseFile.ShowDialog() == DialogResult.OK)
             {
-                
                 if (String.IsNullOrEmpty(chooseFile.FileName))
                 {
                     return false;
                 }
 
-
                 controller.loadMoveData(chooseFile.FileName);
 
                 //checks if a move has been selected, which occurs only after the first time moveData is loaded, then all the current form text is discarded for the currently stored moveData
+                //this is done to prevent a bug in which the previous form text ends up stored as moveData after switching files while the move editor is open
                 if (moveComboBx.SelectedIndex >= 0)
                 {
-                    byte[] moveData = controller.getMoveData(moveComboBx.SelectedIndex);
+                    (int[] moveData, bool[] flags) = controller.getMoveData(moveComboBx.SelectedIndex);
 
-                    effectMaskTxtBx.Text = ((int)moveData[Constants.EFFECTINDEX]).ToString();
-                    classComboBx.SelectedIndex = (int)moveData[Constants.CLASSINDEX];
-                    categoryComboBx.SelectedIndex = (int)moveData[Constants.CATEGORYINDEX];
-                    powerMaskTxtBx.Text = ((int)moveData[Constants.POWERINDEX]).ToString();
-                    typeComboBx.SelectedIndex = (int)moveData[Constants.TYPEINDEX];
-                    accuracyMaskTxtBx.Text = ((int)moveData[Constants.ACCURACYINDEX]).ToString();
-                    ppMaskTxtBx.Text = ((int)moveData[Constants.PPINDEX]).ToString();
-                    effectChanceMaskTxtBx.Text = ((int)moveData[Constants.EFFECTCHANCEINDEX]).ToString();
-                    targetComboBx.SelectedItem = (Target)(int)moveData[Constants.TARGETINDEX];
-                    flag1MaskTxtBx.Text = ((int)moveData[Constants.FLAG1INDEX]).ToString();
-                    priorityMaskTxtBx.Text = ((int)(sbyte)moveData[Constants.PRIORITYINDEX]).ToString(); //priority has to be casted to signed byte before being casted to int so that negative priority values displays correctly
-                    flag2MaskTxtBx.Text = ((int)moveData[Constants.FLAG2INDEX]).ToString();
-                    flag3MaskTxtBx.Text = ((int)moveData[Constants.FLAG3INDEX]).ToString();
-                    contestComboBx.SelectedIndex = (int)moveData[Constants.CONTESTINDEX];
+                    effectMaskTxtBx.Text = moveData[Constants.EFFECTINDEX].ToString();
+                    categoryComboBx.SelectedIndex = moveData[Constants.CATEGORYINDEX];
+                    powerMaskTxtBx.Text = moveData[Constants.POWERINDEX].ToString();
+                    typeComboBx.SelectedIndex = moveData[Constants.TYPEINDEX];
+                    accuracyMaskTxtBx.Text = moveData[Constants.ACCURACYINDEX].ToString();
+                    ppMaskTxtBx.Text = moveData[Constants.PPINDEX].ToString();
+                    effectChanceMaskTxtBx.Text = moveData[Constants.EFFECTCHANCEINDEX].ToString();
+                    targetComboBx.SelectedItem = (Target)moveData[Constants.TARGETINDEX];
+                    priorityMaskTxtBx.Text = moveData[Constants.PRIORITYINDEX].ToString(); 
+                    contestEffectMaskTxtBx.Text = moveData[Constants.CONTESTEFFECTINDEX].ToString();
+                    contestConditionComboBx.SelectedIndex = moveData[Constants.CONTESTCONDITIONINDEX];
+
+                    contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
+                    protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
+                    magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
+                    snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
+                    mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
+                    kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
+                    unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+                    unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
                 }
-                
 
                 moveComboBx.SelectedIndex = 0;
+                this.Text = this.Text.Replace("*", "");
 
                 return true;
             }
@@ -153,148 +158,86 @@ namespace PokemonHGSSMoveEditor
                 return false;
             }
         }
+
         public void displayError(string errorMsg)
         {
             MessageBox.Show(errorMsg);
         }
-        public void close()
-        {
-            this.close();
-        }
-
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.close();
-        }
+        
 
         private void moveComboBx_SelectedValueChanged(object sender, EventArgs e)
         {
-            byte[] moveData = controller.getMoveData(moveComboBx.SelectedIndex);
+            (int[] moveData, bool[] flags) = controller.getMoveData(moveComboBx.SelectedIndex);
 
             updateMoveData();
 
-            effectMaskTxtBx.Text = ((int)moveData[Constants.EFFECTINDEX]).ToString();
-            classComboBx.SelectedIndex = (int)moveData[Constants.CLASSINDEX];
-            categoryComboBx.SelectedIndex = (int)moveData[Constants.CATEGORYINDEX];
-            powerMaskTxtBx.Text = ((int)moveData[Constants.POWERINDEX]).ToString();
-            typeComboBx.SelectedIndex = (int)moveData[Constants.TYPEINDEX];
-            accuracyMaskTxtBx.Text = ((int)moveData[Constants.ACCURACYINDEX]).ToString();
-            ppMaskTxtBx.Text = ((int)moveData[Constants.PPINDEX]).ToString();
-            effectChanceMaskTxtBx.Text = ((int)moveData[Constants.EFFECTCHANCEINDEX]).ToString();
-            targetComboBx.SelectedItem = (Target)(int)moveData[Constants.TARGETINDEX]; 
-            flag1MaskTxtBx.Text = ((int)moveData[Constants.FLAG1INDEX]).ToString();
-            priorityMaskTxtBx.Text = ((int)(sbyte)moveData[Constants.PRIORITYINDEX]).ToString(); //priority has to be casted to signed byte before being casted to int so that negative priority values displays correctly
-            flag2MaskTxtBx.Text = ((int)moveData[Constants.FLAG2INDEX]).ToString();
-            flag3MaskTxtBx.Text = ((int)moveData[Constants.FLAG3INDEX]).ToString();
-            contestComboBx.SelectedIndex = (int)moveData[Constants.CONTESTINDEX];
+            effectMaskTxtBx.Text = (moveData[Constants.EFFECTINDEX]).ToString();
+            categoryComboBx.SelectedIndex = moveData[Constants.CATEGORYINDEX];
+            powerMaskTxtBx.Text = (moveData[Constants.POWERINDEX]).ToString();
+            typeComboBx.SelectedIndex = moveData[Constants.TYPEINDEX];
+            accuracyMaskTxtBx.Text = (moveData[Constants.ACCURACYINDEX]).ToString();
+            ppMaskTxtBx.Text = (moveData[Constants.PPINDEX]).ToString();
+            effectChanceMaskTxtBx.Text = (moveData[Constants.EFFECTCHANCEINDEX]).ToString();
+            targetComboBx.SelectedItem = (Target)moveData[Constants.TARGETINDEX]; 
+            priorityMaskTxtBx.Text = (moveData[Constants.PRIORITYINDEX]).ToString();
+            contestEffectMaskTxtBx.Text = (moveData[Constants.CONTESTEFFECTINDEX]).ToString();
+            contestConditionComboBx.SelectedIndex = moveData[Constants.CONTESTCONDITIONINDEX];
 
-            controller.storeOldValues(moveData);
+            contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
+            protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
+            magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
+            snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
+            mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
+            kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
+            unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+            unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+
+            controller.storeOldValues(moveData, flags);
 
             //stores the index of the current move so that in updateMoveData() it can be retrieved after the selected move has changed
             controller.setPreviousMoveIndex(moveComboBx.SelectedIndex);
         }
 
 
-
         private void updateMoveData()
         {
-            byte[] moveData = new byte[Constants.MOVEDATABYTESIZE];
+            int[] moveData = new int[Constants.NUMMOVEDATABYTES];
+            bool[] flags = new bool[Constants.NUMFLAGS];
 
             //checks if the form has loaded data into controls, only one control needs to be checked since data is loaded into all controls at the same time
             if (!string.IsNullOrEmpty(effectMaskTxtBx.Text))
             {
-                moveData[Constants.EFFECTINDEX] = byte.Parse(effectMaskTxtBx.Text);
-                moveData[Constants.CLASSINDEX] = (byte)(int)classComboBx.SelectedItem;
-                moveData[Constants.CATEGORYINDEX] = (byte)(int)categoryComboBx.SelectedItem;
+                moveData[Constants.EFFECTINDEX] = int.Parse(effectMaskTxtBx.Text);
+                moveData[Constants.CATEGORYINDEX] = (int)categoryComboBx.SelectedItem;
                 moveData[Constants.POWERINDEX] = byte.Parse(powerMaskTxtBx.Text);
                 moveData[Constants.TYPEINDEX] = (byte)typeComboBx.SelectedIndex;
                 moveData[Constants.ACCURACYINDEX] = byte.Parse(accuracyMaskTxtBx.Text);
-                moveData[Constants.PPINDEX] = byte.Parse(accuracyMaskTxtBx.Text);
+                moveData[Constants.PPINDEX] = byte.Parse(ppMaskTxtBx.Text);
                 moveData[Constants.EFFECTCHANCEINDEX] = byte.Parse(effectChanceMaskTxtBx.Text);
                 moveData[Constants.TARGETINDEX] = (byte)(int)targetComboBx.SelectedItem;
-                moveData[Constants.FLAG1INDEX] = byte.Parse(flag1MaskTxtBx.Text);
                 moveData[Constants.PRIORITYINDEX] = (byte)sbyte.Parse(priorityMaskTxtBx.Text);
-                moveData[Constants.FLAG2INDEX] = byte.Parse(flag2MaskTxtBx.Text);
-                moveData[Constants.FLAG3INDEX] = byte.Parse(flag3MaskTxtBx.Text);
-                moveData[Constants.CONTESTINDEX] = (byte)(int)contestComboBx.SelectedItem;
+                moveData[Constants.CONTESTEFFECTINDEX] = byte.Parse(contestEffectMaskTxtBx.Text);
+                moveData[Constants.CONTESTCONDITIONINDEX] = (byte)(int)contestConditionComboBx.SelectedItem;
 
-                controller.updateMoveData(moveData, controller.getPreviousMoveIndex());
-            }
+                flags[Constants.CONTACTFLAGINDEX] = contactCheckBx.Checked;
+                flags[Constants.PROTECTFLAGINDEX] = protectCheckBx.Checked;
+                flags[Constants.MAGICCOATFLAGINDEX] = magicCoatCheckBx.Checked;
+                flags[Constants.SNATCHFLAGINDEX] = snatchCheckBx.Checked;
+                flags[Constants.MIRRORMOVEFLAGINDEX] = mirrorMoveCheckBx.Checked;
+                flags[Constants.KINGSROCKFLAGINDEX] = kingsRockCheckBx.Checked;
+                flags[Constants.UNK1FLAGINDEX] = unkFlag1CheckBx.Checked;
+                flags[Constants.UNK2FLAGINDEX] = unkFlag2CheckBx.Checked;
 
-            
-        }
-
-        private void effectMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(effectMaskTxtBx.Text, out _) || int.Parse(effectMaskTxtBx.Text) > byte.MaxValue)
-            {
-                effectMaskTxtBx.Text = controller.getOldValue(Constants.EFFECTINDEX).ToString();
-            }
-        }
-
-        private void powerMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(powerMaskTxtBx.Text, out _) || int.Parse(powerMaskTxtBx.Text) > byte.MaxValue)
-            {
-                powerMaskTxtBx.Text = controller.getOldValue(Constants.POWERINDEX).ToString();
-
+                if (controller.updateMoveData(moveData, flags, controller.getPreviousMoveIndex()))
+                {
+                    if (!this.Text.Contains("*"))
+                    {
+                        this.Text = this.Text + "*";
+                    }
+                }
             }
         }
-
-        private void accuracyMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(accuracyMaskTxtBx.Text, out _) || int.Parse(accuracyMaskTxtBx.Text) > Constants.MAXPERCENTAGE)
-            {
-                accuracyMaskTxtBx.Text = controller.getOldValue(Constants.ACCURACYINDEX).ToString();
-            }
-        }
-
-        private void ppMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(ppMaskTxtBx.Text, out _))
-            {
-                ppMaskTxtBx.Text = controller.getOldValue(Constants.PPINDEX).ToString();
-            }
-        }
-
-        private void effectChanceMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(effectChanceMaskTxtBx.Text, out _) || int.Parse(effectChanceMaskTxtBx.Text) > Constants.MAXPERCENTAGE)
-            {
-                effectChanceMaskTxtBx.Text = controller.getOldValue(Constants.EFFECTCHANCEINDEX).ToString();
-            }
-        }
-
-        private void flag1MaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(flag1MaskTxtBx.Text, out _) || int.Parse(flag1MaskTxtBx.Text) > byte.MaxValue)
-            {
-                flag1MaskTxtBx.Text = controller.getOldValue(Constants.FLAG1INDEX).ToString();
-            }
-        }
-
-        private void priorityMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(priorityMaskTxtBx.Text, out _) || int.Parse(priorityMaskTxtBx.Text) > Constants.MAXPRIORITY || int.Parse(priorityMaskTxtBx.Text) < -Constants.MAXPRIORITY)
-            {
-                priorityMaskTxtBx.Text = ((sbyte)controller.getOldValue(Constants.PRIORITYINDEX)).ToString();
-            }
-        }
-
-        private void flag2MaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(flag2MaskTxtBx.Text, out _) || int.Parse(flag2MaskTxtBx.Text) > byte.MaxValue)
-            {
-                flag2MaskTxtBx.Text = controller.getOldValue(Constants.FLAG2INDEX).ToString();
-            }
-        }
-        private void flag3MaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!int.TryParse(flag3MaskTxtBx.Text, out _) || int.Parse(flag3MaskTxtBx.Text) > byte.MaxValue)
-            {
-                flag3MaskTxtBx.Text = controller.getOldValue(Constants.FLAG3INDEX).ToString();
-            }
-        }
+        
 
         private void saveAsFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -310,12 +253,26 @@ namespace PokemonHGSSMoveEditor
             if (chooseFile.ShowDialog() == DialogResult.OK)
             {
                 controller.saveToFile(chooseFile.FileName);
+                this.Text = this.Text.Replace("*", "");
             }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            selectFile();
+            updateMoveData();
+
+            if (controller.getIsUnsavedChanges())
+            {
+                if (MessageBox.Show("There are unsaved changes. Do you want to discard changes made and open a new file anyway?", "Pokemon Gen 4 Move Editor",
+                    MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    selectFile();
+                }
+            }
+            else
+            {
+                selectFile();
+            }
         }
 
         private void newTypeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -329,20 +286,99 @@ namespace PokemonHGSSMoveEditor
                 controller.addNewType(typeInputForm.inputText);
                 typeComboBx.Items.Add(typeInputForm.inputText.ToUpper());
             }
-        
         }
 
         private void newMoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var typeInputForm = new userTextInputForm("Enter name of the type to be created");
-            typeInputForm.ShowDialog();
+            var moveInputForm = new userTextInputForm("Enter name of the move to be created");
+            moveInputForm.ShowDialog();
 
 
-            if (typeInputForm.inputText != "")
+            if (moveInputForm.inputText != "")
             {
                 
-                typeComboBx.Items.Add(typeInputForm.inputText.ToUpper());
+                moveComboBx.Items.Add(moveInputForm.inputText.ToUpper());
+                controller.addNewMove(moveInputForm.inputText);
+            }
+
+            moveComboBx.SelectedIndex = moveComboBx.Items.Count - 1;
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void effectMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(effectMaskTxtBx.Text, out _) || int.Parse(effectMaskTxtBx.Text) > byte.MaxValue)
+            {
+                effectMaskTxtBx.Text = controller.getOldValues().Item1[Constants.EFFECTINDEX].ToString();
             }
         }
+
+        private void powerMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(powerMaskTxtBx.Text, out _) || int.Parse(powerMaskTxtBx.Text) > byte.MaxValue)
+            {
+                powerMaskTxtBx.Text = controller.getOldValues().Item1[Constants.POWERINDEX].ToString();
+
+            }
+        }
+
+        private void accuracyMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(accuracyMaskTxtBx.Text, out _) || int.Parse(accuracyMaskTxtBx.Text) > Constants.MAXPERCENTAGE)
+            {
+                accuracyMaskTxtBx.Text = controller.getOldValues().Item1[Constants.ACCURACYINDEX].ToString();
+            }
+        }
+
+        private void ppMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(ppMaskTxtBx.Text, out _))
+            {
+                ppMaskTxtBx.Text = controller.getOldValues().Item1[Constants.PPINDEX].ToString();
+            }
+        }
+
+        private void effectChanceMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(effectChanceMaskTxtBx.Text, out _) || int.Parse(effectChanceMaskTxtBx.Text) > Constants.MAXPERCENTAGE)
+            {
+                effectChanceMaskTxtBx.Text = controller.getOldValues().Item1[Constants.EFFECTCHANCEINDEX].ToString();
+            }
+        }
+
+        private void priorityMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(priorityMaskTxtBx.Text, out _) || int.Parse(priorityMaskTxtBx.Text) > Constants.MAXPRIORITY || int.Parse(priorityMaskTxtBx.Text) < -Constants.MAXPRIORITY)
+            {
+                priorityMaskTxtBx.Text = (controller.getOldValues().Item1[Constants.PRIORITYINDEX]).ToString();
+            }
+        }
+
+        private void contestEffectMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!int.TryParse(contestEffectMaskTxtBx.Text, out _) || int.Parse(contestEffectMaskTxtBx.Text) > byte.MaxValue)
+            {
+                contestEffectMaskTxtBx.Text = controller.getOldValues().Item1[Constants.CONTESTEFFECTINDEX].ToString();
+            }
+        }
+
+        private void MainForm_FormClosing(Object sender, FormClosingEventArgs e)
+        {
+            updateMoveData();
+
+            if (controller.getIsUnsavedChanges())
+            {
+                if (MessageBox.Show("There are unsaved changes. Do you want to discard changes made and close anyway?", "Pokemon Gen 4 Move Editor",
+                    MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+
     }
 }

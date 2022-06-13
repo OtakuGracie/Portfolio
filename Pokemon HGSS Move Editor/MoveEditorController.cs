@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PokemonHGSSMoveEditor
 {
@@ -27,7 +25,7 @@ namespace PokemonHGSSMoveEditor
             return instance;
         }
 
-        public byte[] getMoveData(int index)
+        public (int[], bool[]) getMoveData(int index)
         {
             return model.getMoveData(index);
         }
@@ -47,14 +45,14 @@ namespace PokemonHGSSMoveEditor
             model.loadMoveData(filename);
         }
 
-        public void storeOldValues(byte[] oldValues)
+        public void storeOldValues(int[] oldValues, bool[] flags)
         {
-            model.storeOldValues(oldValues);
+            model.storeOldValues(oldValues, flags);
         }
 
-        public byte getOldValue(int index)
+        public (int[], bool[]) getOldValues()
         {
-            return model.getOldValues(index);
+            return model.getOldValues();
         }
 
         public void setPreviousMoveIndex(int index)
@@ -67,9 +65,9 @@ namespace PokemonHGSSMoveEditor
             return model.getPreviousMoveIndex();
         }
 
-        public void updateMoveData(byte[] moveData, int moveIndex)
+        public bool updateMoveData(int[] moveData, bool[] flags, int moveIndex)
         {
-            model.updateMoveData(moveData, moveIndex);
+            return model.updateMoveData(moveData, flags, moveIndex);
         }
 
         public void addNewType(string typeName)
@@ -77,16 +75,21 @@ namespace PokemonHGSSMoveEditor
             model.addNewType(typeName);
         }
 
+        public void addNewMove(string moveName)
+        {
+            model.addNewMove(moveName);
+        }
+
         public void saveToFile(string fileName)
         {
             model.saveToFile(fileName);
         }
 
-        /*public bool requestClose()
+        public bool getIsUnsavedChanges()
         {
-
+            return model.UnsavedChanges;
         }
-        */
+
         public void setView(IMoveEditorView view)
         {
             this.view = view;

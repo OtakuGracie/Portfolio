@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace PokemonHGSSMoveEditor
@@ -11,10 +8,9 @@ namespace PokemonHGSSMoveEditor
     {
         public List<byte[]> readBinFile(string fileName)
         {
-            int offset = 0;
-            int count = Constants.HEADERSIZE;
+            //int offset = 0;
+            //int count = Constants.HEADERSIZE;
             byte[] trailingBytes = new byte[Constants.HGSSMOVEDATAOFFSET - Constants.HGSSMOVEFILEOFFSET];
-            //byte[] moveData = new byte[Constants.MOVEDATABYTESIZE];
             var header = new byte[Constants.HEADERSIZE];
             var returnVal = new List<byte[]>(getNumMoves() + 1); //+1 due to needing to return the trailing bytes in the list as the first value
 
@@ -22,7 +18,7 @@ namespace PokemonHGSSMoveEditor
 
             for (int i = 0; i <= getNumMoves(); i++)
             {
-                returnVal.Add(new byte[Constants.MOVEDATABYTESIZE]);
+                returnVal.Add(new byte[Constants.NUMMOVEDATABYTES]);
             }
 
             if (!File.Exists(fileName))
@@ -34,7 +30,7 @@ namespace PokemonHGSSMoveEditor
 
             try
             {
-                stream.Read(header, offset, count);
+                stream.Read(header, 0, Constants.HEADERSIZE);
 
                 switch (System.Text.Encoding.ASCII.GetString(header).Replace((char)0, ' ').Replace('?', ' ').Replace((char)1, ' ').Replace(" ", ""))
                 {
@@ -58,13 +54,11 @@ namespace PokemonHGSSMoveEditor
                 stream.Read(trailingBytes, 0, Constants.HGSSMOVEDATAOFFSET - Constants.HGSSMOVEFILEOFFSET);
                 returnVal[0] = trailingBytes;
 
-
-                offset = Constants.HGSSMOVEDATAOFFSET;
+                //offset = Constants.HGSSMOVEDATAOFFSET;
 
                 for (int i = 0; i < getNumMoves(); i++)
                 {
-                    stream.Read(returnVal[i + 1], 0, Constants.MOVEDATABYTESIZE);
-                    //returnVal.Add(moveData);
+                    stream.Read(returnVal[i + 1], 0, Constants.NUMMOVEDATABYTES);
                 }
 
                 stream.Close();
@@ -79,16 +73,12 @@ namespace PokemonHGSSMoveEditor
                 return null;
             }
 
-            
-            
             return returnVal;
         }
 
         public bool writeBinFile(string fileName, byte[] trailingBytes, List<byte[]> moveData)
         {
-            
-
-            FileStream stream = new FileStream(fileName, FileMode.Create);
+            var stream = new FileStream(fileName, FileMode.Create);
 
             try
             {
@@ -96,7 +86,7 @@ namespace PokemonHGSSMoveEditor
 
                 foreach (byte[] move in moveData)
                 {
-                    stream.Write(move, 0, Constants.MOVEDATABYTESIZE);
+                    stream.Write(move, 0, Constants.NUMMOVEDATABYTES);
                 }
                 
                 stream.Close();
@@ -116,7 +106,6 @@ namespace PokemonHGSSMoveEditor
 
         public List<string> readListFile(string fileName)
         {
-
             var contents = new List<string>();
 
             if (!File.Exists(fileName))
@@ -160,7 +149,7 @@ namespace PokemonHGSSMoveEditor
 
             try
             {
-                writer.WriteLine(item);
+                writer.Write("\n" + item);
                 writer.Close();
             }
             catch (Exception E)
@@ -179,6 +168,7 @@ namespace PokemonHGSSMoveEditor
         public void saveToFile(string fileName)
         {
             writeBinFile(fileName, trailingBytes, moveData);
+            unsavedChanges = false;
         }
     }
 }

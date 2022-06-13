@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace PokemonHGSSMoveEditor
 {
@@ -14,102 +12,98 @@ namespace PokemonHGSSMoveEditor
         byte[] trailingBytes = new byte[Constants.HGSSMOVEDATAOFFSET - Constants.HGSSMOVEFILEOFFSET]; //stores bytes between the start of the file containing move data and the start of move data
         byte[] oldValues = new byte[Constants.MOVENUMVALUES];
         int previousMoveIndex;
-        bool unsavedChanges = false;
+        private bool unsavedChanges = false;
+        public bool UnsavedChanges { get => unsavedChanges; }
 
-
-        public void addNewMove(byte[] moveData, string name)
+        public bool updateMoveData(int[] moveData, bool[] flags, int moveIndex)
         {
-            if (validateMoveData(moveData))
-            {
-                moveList.Add(name);
-                this.moveData.Add(moveData);
+            byte[] byteMoveData = convertMoveDataToBytes(moveData, flags);
 
-            }
-        }
-        public void updateMoveData(byte[] moveData, int moveIndex)
-        {
-            
             //check if the passed move data has changed from what was previously stored
             for (int i = 0; i < Constants.MOVENUMVALUES; i++)
             {
-                if (moveData[i] != oldValues[i])
+                if (byteMoveData[i] != oldValues[i])
                 {
-                    this.moveData[moveIndex] = moveData;
+                    this.moveData[moveIndex] = byteMoveData;
                     unsavedChanges = true;
-                    break;
+                    return true;
                 }
             }
 
-
+            return false;
         }
-        public bool validateMoveData(byte[] moveData)
-        {
-
-            if (moveData[Constants.EFFECTINDEX] > byte.MaxValue || moveData[Constants.EFFECTINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.CLASSINDEX] > 1 || moveData[Constants.CLASSINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.POWERINDEX] > byte.MaxValue || moveData[Constants.POWERINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.TYPEINDEX] > typeList.Count - 1 )
-            {
-                return false;
-            }
-            if (moveData[Constants.ACCURACYINDEX] > Constants.MAXPERCENTAGE || moveData[Constants.ACCURACYINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.PPINDEX] > byte.MaxValue || moveData[Constants.PPINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.EFFECTCHANCEINDEX] > Constants.MAXPERCENTAGE || moveData[Constants.EFFECTCHANCEINDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.FLAG1INDEX] > byte.MaxValue || moveData[Constants.FLAG1INDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.PRIORITYINDEX] > Constants.MAXPRIORITY || moveData[Constants.PRIORITYINDEX] < -Constants.MAXPRIORITY)
-            {
-                return false;
-            }
-            if (moveData[Constants.FLAG2INDEX] > byte.MaxValue || moveData[Constants.FLAG2INDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-            if (moveData[Constants.FLAG3INDEX] > byte.MaxValue || moveData[Constants.FLAG3INDEX] < Constants.MINFLAGVALUE)
-            {
-                return false;
-            }
-
-            return true;
-        }
+        
 
         public int getNumMoves()
         {
             return moveList.Count;
         }
 
-        public byte[] getMoveData(int moveIndex)
+        public (int[], bool[]) getMoveData(int moveIndex)
         {
+            int[] moveData = new int[Constants.NUMMOVEDATABYTES];
+            bool[] flags = new bool[Constants.NUMFLAGS];
+            int flagsIntVal = this.moveData[moveIndex][Constants.FLAGSINDEX];
 
-            if (moveData != null)
+            if (this.moveData != null)
             {
-                return moveData[moveIndex];
+                if (this.moveData[moveIndex][Constants.EFFECTEXTINDEX] == 1)
+                {
+                    moveData[Constants.EFFECTINDEX] = this.moveData[moveIndex][Constants.EFFECTINDEX] + 256;
+                }
+                else
+                {
+                    moveData[Constants.EFFECTINDEX] = this.moveData[moveIndex][Constants.EFFECTINDEX];
+                }
+
+                moveData[Constants.CATEGORYINDEX] = this.moveData[moveIndex][Constants.CATEGORYINDEX];
+                moveData[Constants.POWERINDEX] = this.moveData[moveIndex][Constants.POWERINDEX];
+                moveData[Constants.TYPEINDEX] = this.moveData[moveIndex][Constants.TYPEINDEX];
+                moveData[Constants.ACCURACYINDEX] = this.moveData[moveIndex][Constants.ACCURACYINDEX];
+                moveData[Constants.PPINDEX] = this.moveData[moveIndex][Constants.PPINDEX];
+                moveData[Constants.EFFECTCHANCEINDEX] = this.moveData[moveIndex][Constants.EFFECTCHANCEINDEX];
+
+                if (this.moveData[moveIndex][Constants.TARGETEXTINDEX] == 1)
+                {
+                    moveData[Constants.TARGETINDEX] = (int)Target.ALLY;
+                }
+                else if (this.moveData[moveIndex][Constants.TARGETEXTINDEX] == 2)
+                {
+                    moveData[Constants.TARGETINDEX] = (int)Target.SELF_OR_ALLY;
+                }
+                else if (this.moveData[moveIndex][Constants.TARGETEXTINDEX] == 4)
+                {
+                    moveData[Constants.TARGETINDEX] = (int)Target.ANY_FOE;
+                }
+                else
+                {
+                    moveData[Constants.TARGETINDEX] = this.moveData[moveIndex][Constants.TARGETINDEX];
+                }
+
+                moveData[Constants.PRIORITYINDEX] = (sbyte)this.moveData[moveIndex][Constants.PRIORITYINDEX];
+                moveData[Constants.CONTESTEFFECTINDEX] = this.moveData[moveIndex][Constants.CONTESTEFFECTINDEX];
+                moveData[Constants.CONTESTCONDITIONINDEX] = this.moveData[moveIndex][Constants.CONTESTCONDITIONINDEX];
+
+                //indirectly checks the bit values of the flags byte to determine what individual flags are set
+                for (int i = Constants.NUMFLAGS - 1, bitFlagVal = 128; i >= 0; i--, bitFlagVal /= 2)
+                {
+                    if (flagsIntVal >= bitFlagVal)
+                    {
+                        flags[i] = true;
+                        flagsIntVal -= bitFlagVal;
+                    }
+                    else
+                    {
+                        flags[i] = false;
+                    }
+                }
+                
+                return (moveData, flags);
             }
             else
             {
-                return null;
+                return (null, null);
             }
-            
         }
 
         public List<string> getMoveList()
@@ -175,14 +169,70 @@ namespace PokemonHGSSMoveEditor
             unsavedChanges = false;
         }
 
-        public void storeOldValues(byte[] oldValues)
+        public void storeOldValues(int[] oldValues, bool[] flags)
         {
-            this.oldValues = oldValues;
+            byte[] byteOldValues = convertMoveDataToBytes(oldValues, flags);
+            this.oldValues = byteOldValues;
         }
 
-        public byte getOldValues(int index)
+        public (int[], bool[]) getOldValues()
         {
-            return oldValues[index];
+            int[] oldValues = new int[Constants.NUMMOVEDATABYTES];
+            bool[] flags = new bool[Constants.NUMFLAGS];
+            int flagsIntVal = this.oldValues[Constants.FLAGSINDEX];
+
+            if (this.oldValues[Constants.EFFECTEXTINDEX] == 1)
+            {
+                oldValues[Constants.EFFECTINDEX] = this.oldValues[Constants.EFFECTINDEX] + 256;
+            }
+            else
+            {
+                oldValues[Constants.EFFECTINDEX] = this.oldValues[Constants.EFFECTINDEX];
+            }
+
+            oldValues[Constants.CATEGORYINDEX] = this.oldValues[Constants.CATEGORYINDEX];
+            oldValues[Constants.POWERINDEX] = this.oldValues[Constants.POWERINDEX];
+            oldValues[Constants.TYPEINDEX] = this.oldValues[Constants.TYPEINDEX];
+            oldValues[Constants.ACCURACYINDEX] = this.oldValues[Constants.ACCURACYINDEX];
+            oldValues[Constants.PPINDEX] = this.oldValues[Constants.PPINDEX];
+            oldValues[Constants.EFFECTCHANCEINDEX] = this.oldValues[Constants.EFFECTCHANCEINDEX];
+
+            if (this.oldValues[Constants.TARGETEXTINDEX] == 1)
+            {
+                oldValues[Constants.TARGETINDEX] = (int)Target.ALLY;
+            }
+            else if (this.oldValues[Constants.TARGETEXTINDEX] == 2)
+            {
+                oldValues[Constants.TARGETINDEX] = (int)Target.SELF_OR_ALLY;
+            }
+            else if (this.oldValues[Constants.TARGETEXTINDEX] == 4)
+            {
+                oldValues[Constants.TARGETINDEX] = (int)Target.ANY_FOE;
+            }
+            else
+            {
+                oldValues[Constants.TARGETINDEX] = this.oldValues[Constants.TARGETINDEX];
+            }
+
+            oldValues[Constants.PRIORITYINDEX] = (sbyte)this.oldValues[Constants.PRIORITYINDEX];
+            oldValues[Constants.CONTESTEFFECTINDEX] = this.oldValues[Constants.CONTESTEFFECTINDEX];
+            oldValues[Constants.CONTESTCONDITIONINDEX] = this.oldValues[Constants.CONTESTCONDITIONINDEX];
+
+            //indirectly checks the bit values of the flags byte to determine what individual flags are set
+            for (int i = Constants.NUMFLAGS - 1, bitFlagVal = 128; i >= 0; i--, bitFlagVal /= 2)
+            {
+                if (flagsIntVal >= bitFlagVal)
+                {
+                    flags[i] = true;
+                    flagsIntVal -= bitFlagVal;
+                }
+                else
+                {
+                    flags[i] = false;
+                }
+            }
+
+            return (oldValues, flags);
         }
 
         public void setPreviousMoveIndex(int index)
@@ -199,6 +249,49 @@ namespace PokemonHGSSMoveEditor
         {
             typeList.Add(typeName);
             appendListFile(Constants.TYPELISTFILENAME, typeName);
+        }
+
+        public void addNewMove(string moveName)
+        {
+            moveList.Add(moveName);
+            appendListFile(Constants.MOVELISTFILENAME, moveName);
+            moveData.Add(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            unsavedChanges = true;
+        }
+
+        private byte[] convertMoveDataToBytes(int[] moveData, bool[] flags)
+        {
+            int flagsVal = 0;
+
+            //calculates the value of the byte flag based on boolean flags
+            for (int i = Constants.NUMFLAGS - 1, bitFlagVal = 128; i >= 0; i--, bitFlagVal /= 2)
+            {
+                if (flags[i])
+                {
+                    flagsVal += bitFlagVal;
+                }
+            }
+            moveData[Constants.FLAGSINDEX] = flagsVal;
+
+            //seperates the effect value across 2 bytes like it is stored in the games if the value is greater than 255
+            if (moveData[Constants.EFFECTINDEX] > byte.MaxValue)
+            {
+                moveData[Constants.EFFECTINDEX] -= byte.MaxValue;
+                moveData[Constants.EFFECTEXTINDEX] = 1;
+            }
+
+            //same as above but for target value
+            if (moveData[Constants.TARGETINDEX] > byte.MaxValue)
+            {
+                moveData[Constants.TARGETINDEX] -= byte.MaxValue;
+                moveData[Constants.TARGETEXTINDEX] = 1;
+            }
+
+            return new byte[]  {
+                (byte)moveData[Constants.EFFECTINDEX], (byte)moveData[Constants.EFFECTEXTINDEX], (byte)moveData[Constants.CATEGORYINDEX], (byte)moveData[Constants.POWERINDEX],
+                (byte)moveData[Constants.TYPEINDEX], (byte)moveData[Constants.ACCURACYINDEX], (byte)moveData[Constants.PPINDEX],
+                (byte)moveData[Constants.EFFECTCHANCEINDEX], (byte)moveData[Constants.TARGETINDEX], (byte)moveData[Constants.TARGETEXTINDEX], (byte)moveData[Constants.PRIORITYINDEX],
+                (byte)moveData[Constants.FLAGSINDEX], (byte)moveData[Constants.CONTESTEFFECTINDEX], (byte)moveData[Constants.CONTESTCONDITIONINDEX], 0, 0 };
         }
     }
 }

@@ -11,6 +11,5 @@ namespace PokemonHGSSMoveEditor
         //                          Target moveTarget, int flag1, int priority, int flag2, int flag3, ContestCondition moveContest);
         bool selectFile();
         void displayError(string errorMsg);
-        void close();
     }
 }

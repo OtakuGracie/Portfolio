@@ -6,19 +6,17 @@ namespace PokemonHGSSMoveEditor
 {
     public interface IMoveEditorModel
     {
-        
+        bool UnsavedChanges { get; }
         bool writeBinFile(string fileName, byte[] trailingBytes, List<byte[]> moveData);
         void loadMoveData(string filename);
-        void addNewMove(byte[] moveData, string name);
-        void updateMoveData(byte[] moveData, int moveIndex);
-        bool validateMoveData(byte[] moveData);
-        void storeOldValues(byte[] oldValues);
-        byte getOldValues(int index);
+        bool updateMoveData(int[] moveData, bool[] flags, int moveIndex);
+        void storeOldValues(int[] oldValues, bool[] flags);
+        (int[], bool[]) getOldValues();
         void setPreviousMoveIndex(int index);
         int getPreviousMoveIndex();
-        //int getNumMoves();
-        byte[] getMoveData(int index);
+        (int[], bool[]) getMoveData(int index);
         void addNewType(string typeName);
+        void addNewMove(string moveName);
         void saveToFile(string fileName);
         List<string> getMoveList();
         List<string> getTypeList();
