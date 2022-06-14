@@ -7,7 +7,7 @@ namespace PokemonHGSSMoveEditor
         FOE = 0,
         OTHER = 1,
         RANDOM = 2,
-        FOES = 4,
+        ALL_FOES = 4,
         OTHERS = 8,
         SELF = 16,
         SELF_AND_ALLY = 32,

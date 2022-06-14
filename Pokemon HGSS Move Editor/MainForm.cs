@@ -77,8 +77,8 @@ namespace PokemonHGSSMoveEditor
             snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
             mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
             kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-            unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-            unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+            keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+            hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
         }
 
         public void showMoveList(List<string> moveList)
@@ -144,8 +144,8 @@ namespace PokemonHGSSMoveEditor
                     snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
                     mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
                     kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-                    unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-                    unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+                    keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+                    hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
                 }
 
                 moveComboBx.SelectedIndex = 0;
@@ -189,8 +189,8 @@ namespace PokemonHGSSMoveEditor
             snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
             mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
             kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-            unkFlag1CheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-            unkFlag2CheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+            keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
+            hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
 
             controller.storeOldValues(moveData, flags);
 
@@ -225,8 +225,8 @@ namespace PokemonHGSSMoveEditor
                 flags[Constants.SNATCHFLAGINDEX] = snatchCheckBx.Checked;
                 flags[Constants.MIRRORMOVEFLAGINDEX] = mirrorMoveCheckBx.Checked;
                 flags[Constants.KINGSROCKFLAGINDEX] = kingsRockCheckBx.Checked;
-                flags[Constants.UNK1FLAGINDEX] = unkFlag1CheckBx.Checked;
-                flags[Constants.UNK2FLAGINDEX] = unkFlag2CheckBx.Checked;
+                flags[Constants.UNK1FLAGINDEX] = keepHPBarCheckBx.Checked;
+                flags[Constants.UNK2FLAGINDEX] = hideShadowCheckBx.Checked;
 
                 if (controller.updateMoveData(moveData, flags, controller.getPreviousMoveIndex()))
                 {

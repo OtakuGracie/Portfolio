@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.moveComboBx = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -58,7 +59,6 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsPatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,9 +70,10 @@
             this.snatchCheckBx = new System.Windows.Forms.CheckBox();
             this.mirrorMoveCheckBx = new System.Windows.Forms.CheckBox();
             this.kingsRockCheckBx = new System.Windows.Forms.CheckBox();
-            this.unkFlag1CheckBx = new System.Windows.Forms.CheckBox();
-            this.unkFlag2CheckBx = new System.Windows.Forms.CheckBox();
+            this.keepHPBarCheckBx = new System.Windows.Forms.CheckBox();
+            this.hideShadowCheckBx = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.flagsToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -346,7 +347,6 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.saveAsFileToolStripMenuItem,
-            this.saveAsPatchToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -355,27 +355,21 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveAsFileToolStripMenuItem
             // 
             this.saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            this.saveAsFileToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.saveAsFileToolStripMenuItem.Text = "Save as file";
+            this.saveAsFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsFileToolStripMenuItem.Text = "Save as binary file";
             this.saveAsFileToolStripMenuItem.Click += new System.EventHandler(this.saveAsFileToolStripMenuItem_Click);
-            // 
-            // saveAsPatchToolStripMenuItem
-            // 
-            this.saveAsPatchToolStripMenuItem.Name = "saveAsPatchToolStripMenuItem";
-            this.saveAsPatchToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.saveAsPatchToolStripMenuItem.Text = "Save as patch";
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -426,6 +420,8 @@
             this.protectCheckBx.Size = new System.Drawing.Size(117, 17);
             this.protectCheckBx.TabIndex = 32;
             this.protectCheckBx.Text = "Affected by Protect";
+            this.flagsToolTip.SetToolTip(this.protectCheckBx, "Causes the move to have no affect on any targets that used protect/detect on the " +
+        "same turn");
             this.protectCheckBx.UseVisualStyleBackColor = true;
             // 
             // magicCoatCheckBx
@@ -436,6 +432,7 @@
             this.magicCoatCheckBx.Size = new System.Drawing.Size(137, 17);
             this.magicCoatCheckBx.TabIndex = 33;
             this.magicCoatCheckBx.Text = "Affected by Magic Coat";
+            this.flagsToolTip.SetToolTip(this.magicCoatCheckBx, "Allows the move to be reflected by magic coat");
             this.magicCoatCheckBx.UseVisualStyleBackColor = true;
             // 
             // snatchCheckBx
@@ -446,6 +443,7 @@
             this.snatchCheckBx.Size = new System.Drawing.Size(117, 17);
             this.snatchCheckBx.TabIndex = 34;
             this.snatchCheckBx.Text = "Affected by Snatch";
+            this.flagsToolTip.SetToolTip(this.snatchCheckBx, "Allows this move to be stolen by snatch");
             this.snatchCheckBx.UseVisualStyleBackColor = true;
             // 
             // mirrorMoveCheckBx
@@ -456,6 +454,7 @@
             this.mirrorMoveCheckBx.Size = new System.Drawing.Size(139, 17);
             this.mirrorMoveCheckBx.TabIndex = 35;
             this.mirrorMoveCheckBx.Text = "Affected by Mirror Move";
+            this.flagsToolTip.SetToolTip(this.mirrorMoveCheckBx, "Allows mirror move to copy this");
             this.mirrorMoveCheckBx.UseVisualStyleBackColor = true;
             // 
             // kingsRockCheckBx
@@ -466,35 +465,38 @@
             this.kingsRockCheckBx.Size = new System.Drawing.Size(140, 17);
             this.kingsRockCheckBx.TabIndex = 36;
             this.kingsRockCheckBx.Text = "Affected by King\'s Rock";
+            this.flagsToolTip.SetToolTip(this.kingsRockCheckBx, "Applies the flinch chance of king\'s rock when held while this move is used");
             this.kingsRockCheckBx.UseVisualStyleBackColor = true;
             // 
-            // unkFlag1CheckBx
+            // keepHPBarCheckBx
             // 
-            this.unkFlag1CheckBx.AutoSize = true;
-            this.unkFlag1CheckBx.Location = new System.Drawing.Point(29, 167);
-            this.unkFlag1CheckBx.Name = "unkFlag1CheckBx";
-            this.unkFlag1CheckBx.Size = new System.Drawing.Size(101, 17);
-            this.unkFlag1CheckBx.TabIndex = 37;
-            this.unkFlag1CheckBx.Text = "Unknown flag 1";
-            this.unkFlag1CheckBx.UseVisualStyleBackColor = true;
+            this.keepHPBarCheckBx.AutoSize = true;
+            this.keepHPBarCheckBx.Location = new System.Drawing.Point(29, 167);
+            this.keepHPBarCheckBx.Name = "keepHPBarCheckBx";
+            this.keepHPBarCheckBx.Size = new System.Drawing.Size(87, 17);
+            this.keepHPBarCheckBx.TabIndex = 37;
+            this.keepHPBarCheckBx.Text = "Keep HP bar";
+            this.flagsToolTip.SetToolTip(this.keepHPBarCheckBx, "Show the HP bar when the move animation is playing");
+            this.keepHPBarCheckBx.UseVisualStyleBackColor = true;
             // 
-            // unkFlag2CheckBx
+            // hideShadowCheckBx
             // 
-            this.unkFlag2CheckBx.AutoSize = true;
-            this.unkFlag2CheckBx.Location = new System.Drawing.Point(29, 190);
-            this.unkFlag2CheckBx.Name = "unkFlag2CheckBx";
-            this.unkFlag2CheckBx.Size = new System.Drawing.Size(101, 17);
-            this.unkFlag2CheckBx.TabIndex = 38;
-            this.unkFlag2CheckBx.Text = "Unknown flag 2";
-            this.unkFlag2CheckBx.UseVisualStyleBackColor = true;
+            this.hideShadowCheckBx.AutoSize = true;
+            this.hideShadowCheckBx.Location = new System.Drawing.Point(29, 190);
+            this.hideShadowCheckBx.Name = "hideShadowCheckBx";
+            this.hideShadowCheckBx.Size = new System.Drawing.Size(88, 17);
+            this.hideShadowCheckBx.TabIndex = 38;
+            this.hideShadowCheckBx.Text = "Hide shadow";
+            this.flagsToolTip.SetToolTip(this.hideShadowCheckBx, "Hide the shadow of the opposing pokemon while the move animation is playing");
+            this.hideShadowCheckBx.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
             this.groupBox1.Controls.Add(this.contactCheckBx);
-            this.groupBox1.Controls.Add(this.unkFlag2CheckBx);
+            this.groupBox1.Controls.Add(this.hideShadowCheckBx);
             this.groupBox1.Controls.Add(this.protectCheckBx);
-            this.groupBox1.Controls.Add(this.unkFlag1CheckBx);
+            this.groupBox1.Controls.Add(this.keepHPBarCheckBx);
             this.groupBox1.Controls.Add(this.magicCoatCheckBx);
             this.groupBox1.Controls.Add(this.kingsRockCheckBx);
             this.groupBox1.Controls.Add(this.snatchCheckBx);
@@ -584,7 +586,6 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsPatchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addToolStripMenuItem;
@@ -596,9 +597,10 @@
         private System.Windows.Forms.CheckBox snatchCheckBx;
         private System.Windows.Forms.CheckBox mirrorMoveCheckBx;
         private System.Windows.Forms.CheckBox kingsRockCheckBx;
-        private System.Windows.Forms.CheckBox unkFlag1CheckBx;
-        private System.Windows.Forms.CheckBox unkFlag2CheckBx;
+        private System.Windows.Forms.CheckBox keepHPBarCheckBx;
+        private System.Windows.Forms.CheckBox hideShadowCheckBx;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.ToolTip flagsToolTip;
     }
 }
 
