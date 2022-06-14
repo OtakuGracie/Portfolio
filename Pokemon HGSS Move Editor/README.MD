@@ -13,6 +13,7 @@ Features:
 * Support for types added through romhacking beyond the originals
 
 
+I highly recommend using the tool crystal tile to to insert the output binary file into a rom.
 
 
 Planned future features:
