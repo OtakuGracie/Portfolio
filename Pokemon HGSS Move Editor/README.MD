@@ -4,6 +4,7 @@ Program for editing move data in the generation 4 pokemon game roms (Diamond/Pea
 
 THIS ONLY RUNS IN WINDOWS (Tested on windows 8.1 & 10)
 
+![gen4_move_editor](https://user-images.githubusercontent.com/73315709/174531970-71e30ccf-e997-44ba-948c-b1e0fad5af07.PNG)
 
 Features:
 * View data for all 467 moves in gen 4 pokemon game roms, including contest data and flags for contact, protect, king's rock, etc.
@@ -21,3 +22,4 @@ Planned future features:
 * ability to save changes directly to rom file or copy
 * set animation data for new moves?
 * set name in roms for new moves?
+
