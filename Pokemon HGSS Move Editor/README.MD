@@ -18,8 +18,7 @@ I highly recommend using the tool crystal tile to to insert the output binary fi
 
 
 Planned future features:
-* ability to save changes in xDelta3 patch file
-* ability to save changes directly to rom file or copy
+* ability to save changes directly to rom file
 * set animation data for new moves?
 * set name in roms for new moves?
 
