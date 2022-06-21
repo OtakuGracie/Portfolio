@@ -1,6 +1,8 @@
 
 Program for editing move data in the generation 4 pokemon game roms (Diamond/Pearl/Platinum/Heartgold/Soulsilver).
 
+Created in Microsoft Visual Studio with the C# programming language and windows form for UI.
+Runs on .Net framework 4.0 (created with 4.7.2)
 
 THIS ONLY RUNS IN WINDOWS (Tested on windows 8.1 & 10)
 
