@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
 namespace PokemonHGSSMoveEditor
@@ -147,11 +146,16 @@ namespace PokemonHGSSMoveEditor
             return typeList;
         }
 
-        public void loadMoveData(string filename)
+        public bool loadMoveData(string filename)
         {
             List<byte[]> fileData;
 
             fileData = readBinFile(filename);
+
+            if (fileData == null)
+            {
+                return false;
+            }
 
             trailingBytes = fileData[0];
 
@@ -167,6 +171,8 @@ namespace PokemonHGSSMoveEditor
             }
 
             unsavedChanges = false;
+
+            return true;
         }
 
         public void storeOldValues(int[] oldValues, bool[] flags)
@@ -259,11 +265,12 @@ namespace PokemonHGSSMoveEditor
             unsavedChanges = true;
         }
 
+        //takes passed int array and bool array of move data and converts them to a byte array to be stored
         private byte[] convertMoveDataToBytes(int[] moveData, bool[] flags)
         {
             int flagsVal = 0;
 
-            //calculates the value of the byte flag based on boolean flags
+            //calculates the value of the flag byte based on boolean flags
             for (int i = Constants.NUMFLAGS - 1, bitFlagVal = 128; i >= 0; i--, bitFlagVal /= 2)
             {
                 if (flags[i])
@@ -281,10 +288,20 @@ namespace PokemonHGSSMoveEditor
             }
 
             //same as above but for target value
-            if (moveData[Constants.TARGETINDEX] > byte.MaxValue)
+            if (moveData[Constants.TARGETINDEX] == (int)Target.ALLY)
             {
-                moveData[Constants.TARGETINDEX] -= byte.MaxValue;
+                moveData[Constants.TARGETINDEX] -= (int)Target.ALLY;
                 moveData[Constants.TARGETEXTINDEX] = 1;
+            }
+            if (moveData[Constants.TARGETINDEX] == (int)Target.SELF_OR_ALLY)
+            {
+                moveData[Constants.TARGETINDEX] -= (int)Target.SELF_OR_ALLY;
+                moveData[Constants.TARGETEXTINDEX] = 2;
+            }
+            if (moveData[Constants.TARGETINDEX] == (int)Target.ANY_FOE)
+            {
+                moveData[Constants.TARGETINDEX] -= (int)Target.ANY_FOE;
+                moveData[Constants.TARGETEXTINDEX] = 4;
             }
 
             return new byte[]  {

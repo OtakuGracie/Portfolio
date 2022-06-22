@@ -40,9 +40,9 @@ namespace PokemonHGSSMoveEditor
             return model.getTypeList();
         }
 
-        public void loadMoveData(string filename)
+        public bool loadMoveData(string filename)
         {
-            model.loadMoveData(filename);
+            return model.loadMoveData(filename);
         }
 
         public void storeOldValues(int[] oldValues, bool[] flags)
@@ -80,14 +80,29 @@ namespace PokemonHGSSMoveEditor
             model.addNewMove(moveName);
         }
 
-        public void saveToFile(string fileName)
+        public bool writeToRom(string fileName)
         {
-            model.saveToFile(fileName);
+            return model.writeToRom(fileName);
+        }
+
+        public bool saveToBinFile(string fileName)
+        {
+            return model.writeBinFile(fileName);
         }
 
         public bool getIsUnsavedChanges()
         {
             return model.UnsavedChanges;
+        }
+
+        public void showErrorMsg(string errorMsg)
+        {
+            view.displayError(errorMsg);
+        }
+
+        public void showErrorMsg(string errorMsg, string exceptionMsg)
+        {
+            view.displayError(errorMsg, exceptionMsg);
         }
 
         public void setView(IMoveEditorView view)

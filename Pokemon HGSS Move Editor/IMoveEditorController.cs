@@ -9,7 +9,7 @@ namespace PokemonHGSSMoveEditor
         
         List<string> getMoveList();
         List<string> getTypeList();
-        void loadMoveData(string fileName);
+        bool loadMoveData(string fileName);
         void storeOldValues(int[] oldValues, bool[] flags);
         (int[], bool[]) getOldValues();
         void setPreviousMoveIndex(int index);
@@ -17,10 +17,12 @@ namespace PokemonHGSSMoveEditor
         bool updateMoveData(int[] moveData, bool[] flags, int moveIndex);
         void addNewType(string typeName);
         void addNewMove(string moveName);
-        void saveToFile(string fileName);
+        bool writeToRom(string fileName);
+        bool saveToBinFile(string fileName);
         bool getIsUnsavedChanges();
 
-        //bool requestClose();
+        void showErrorMsg(string errorMsg);
+        void showErrorMsg(string errorMsg, string exceptionMsg);
         void setModel(IMoveEditorModel model);
         void setView(IMoveEditorView view);
         (int[], bool[]) getMoveData(int index);

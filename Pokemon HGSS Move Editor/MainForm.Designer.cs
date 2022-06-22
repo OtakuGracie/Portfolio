@@ -74,12 +74,14 @@
             this.hideShadowCheckBx = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.flagsToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.saveToRomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // moveComboBx
             // 
+            this.moveComboBx.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.moveComboBx.FormattingEnabled = true;
             this.moveComboBx.Location = new System.Drawing.Point(301, 63);
             this.moveComboBx.MaxDropDownItems = 10;
@@ -132,7 +134,7 @@
             this.accuracyMaskTxtBx.CutCopyMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             this.accuracyMaskTxtBx.HidePromptOnLeave = true;
             this.accuracyMaskTxtBx.Location = new System.Drawing.Point(61, 251);
-            this.accuracyMaskTxtBx.Mask = "%900";
+            this.accuracyMaskTxtBx.Mask = "900%";
             this.accuracyMaskTxtBx.Name = "accuracyMaskTxtBx";
             this.accuracyMaskTxtBx.PromptChar = ' ';
             this.accuracyMaskTxtBx.Size = new System.Drawing.Size(118, 20);
@@ -167,7 +169,7 @@
             this.typeComboBx.Location = new System.Drawing.Point(201, 177);
             this.typeComboBx.Name = "typeComboBx";
             this.typeComboBx.Size = new System.Drawing.Size(118, 21);
-            this.typeComboBx.TabIndex = 4;
+            this.typeComboBx.TabIndex = 5;
             // 
             // label5
             // 
@@ -213,7 +215,7 @@
             this.effectChanceMaskTxtBx.CutCopyMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             this.effectChanceMaskTxtBx.HidePromptOnLeave = true;
             this.effectChanceMaskTxtBx.Location = new System.Drawing.Point(201, 328);
-            this.effectChanceMaskTxtBx.Mask = "%900";
+            this.effectChanceMaskTxtBx.Mask = "900%";
             this.effectChanceMaskTxtBx.Name = "effectChanceMaskTxtBx";
             this.effectChanceMaskTxtBx.PromptChar = ' ';
             this.effectChanceMaskTxtBx.Size = new System.Drawing.Size(118, 20);
@@ -237,7 +239,7 @@
             this.categoryComboBx.MaxDropDownItems = 3;
             this.categoryComboBx.Name = "categoryComboBx";
             this.categoryComboBx.Size = new System.Drawing.Size(118, 21);
-            this.categoryComboBx.TabIndex = 5;
+            this.categoryComboBx.TabIndex = 4;
             // 
             // label10
             // 
@@ -256,7 +258,7 @@
             this.targetComboBx.MaxDropDownItems = 9;
             this.targetComboBx.Name = "targetComboBx";
             this.targetComboBx.Size = new System.Drawing.Size(118, 21);
-            this.targetComboBx.TabIndex = 8;
+            this.targetComboBx.TabIndex = 11;
             // 
             // label11
             // 
@@ -276,7 +278,7 @@
             this.priorityMaskTxtBx.Name = "priorityMaskTxtBx";
             this.priorityMaskTxtBx.PromptChar = ' ';
             this.priorityMaskTxtBx.Size = new System.Drawing.Size(118, 20);
-            this.priorityMaskTxtBx.TabIndex = 9;
+            this.priorityMaskTxtBx.TabIndex = 8;
             this.priorityMaskTxtBx.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // label14
@@ -297,7 +299,7 @@
             this.contestEffectMaskTxtBx.Name = "contestEffectMaskTxtBx";
             this.contestEffectMaskTxtBx.PromptChar = ' ';
             this.contestEffectMaskTxtBx.Size = new System.Drawing.Size(118, 20);
-            this.contestEffectMaskTxtBx.TabIndex = 14;
+            this.contestEffectMaskTxtBx.TabIndex = 9;
             this.contestEffectMaskTxtBx.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // label15
@@ -325,8 +327,8 @@
             this.resetButton.Location = new System.Drawing.Point(363, 407);
             this.resetButton.Name = "resetButton";
             this.resetButton.Size = new System.Drawing.Size(75, 23);
-            this.resetButton.TabIndex = 15;
-            this.resetButton.Text = "Reset";
+            this.resetButton.TabIndex = 20;
+            this.resetButton.Text = "&Reset";
             this.resetButton.UseVisualStyleBackColor = true;
             this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
             // 
@@ -339,13 +341,15 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(734, 24);
-            this.menuStrip1.TabIndex = 30;
+            this.menuStrip1.TabIndex = 21;
+            this.menuStrip1.TabStop = true;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.saveToRomToolStripMenuItem,
             this.saveAsFileToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -355,29 +359,33 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveAsFileToolStripMenuItem
             // 
             this.saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            this.saveAsFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveAsFileToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.saveAsFileToolStripMenuItem.Text = "Save as binary file";
             this.saveAsFileToolStripMenuItem.Click += new System.EventHandler(this.saveAsFileToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newTypeToolStripMenuItem,
-            this.newMoveToolStripMenuItem});
+            this.newMoveToolStripMenuItem,
+            this.newTypeToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
             this.addToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
             this.addToolStripMenuItem.Text = "Add";
@@ -385,20 +393,24 @@
             // newTypeToolStripMenuItem
             // 
             this.newTypeToolStripMenuItem.Name = "newTypeToolStripMenuItem";
-            this.newTypeToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.newTypeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.N)));
+            this.newTypeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.newTypeToolStripMenuItem.Text = "New Type";
             this.newTypeToolStripMenuItem.Click += new System.EventHandler(this.newTypeToolStripMenuItem_Click);
             // 
             // newMoveToolStripMenuItem
             // 
             this.newMoveToolStripMenuItem.Name = "newMoveToolStripMenuItem";
-            this.newMoveToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.newMoveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.newMoveToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.newMoveToolStripMenuItem.Text = "New Move";
             this.newMoveToolStripMenuItem.Click += new System.EventHandler(this.newMoveToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
             // 
@@ -408,8 +420,10 @@
             this.contactCheckBx.Location = new System.Drawing.Point(29, 30);
             this.contactCheckBx.Name = "contactCheckBx";
             this.contactCheckBx.Size = new System.Drawing.Size(97, 17);
-            this.contactCheckBx.TabIndex = 31;
+            this.contactCheckBx.TabIndex = 12;
             this.contactCheckBx.Text = "Makes contact";
+            this.flagsToolTip.SetToolTip(this.contactCheckBx, "Makes contact effects apply when the move is  used (ex. poison point causing pois" +
+        "oning when being attacked)");
             this.contactCheckBx.UseVisualStyleBackColor = true;
             // 
             // protectCheckBx
@@ -418,7 +432,7 @@
             this.protectCheckBx.Location = new System.Drawing.Point(29, 53);
             this.protectCheckBx.Name = "protectCheckBx";
             this.protectCheckBx.Size = new System.Drawing.Size(117, 17);
-            this.protectCheckBx.TabIndex = 32;
+            this.protectCheckBx.TabIndex = 13;
             this.protectCheckBx.Text = "Affected by Protect";
             this.flagsToolTip.SetToolTip(this.protectCheckBx, "Causes the move to have no affect on any targets that used protect/detect on the " +
         "same turn");
@@ -430,9 +444,9 @@
             this.magicCoatCheckBx.Location = new System.Drawing.Point(29, 76);
             this.magicCoatCheckBx.Name = "magicCoatCheckBx";
             this.magicCoatCheckBx.Size = new System.Drawing.Size(137, 17);
-            this.magicCoatCheckBx.TabIndex = 33;
+            this.magicCoatCheckBx.TabIndex = 14;
             this.magicCoatCheckBx.Text = "Affected by Magic Coat";
-            this.flagsToolTip.SetToolTip(this.magicCoatCheckBx, "Allows the move to be reflected by magic coat");
+            this.flagsToolTip.SetToolTip(this.magicCoatCheckBx, "Allows the move to be reflected by targets that use magic coat on the same turn");
             this.magicCoatCheckBx.UseVisualStyleBackColor = true;
             // 
             // snatchCheckBx
@@ -441,9 +455,9 @@
             this.snatchCheckBx.Location = new System.Drawing.Point(29, 98);
             this.snatchCheckBx.Name = "snatchCheckBx";
             this.snatchCheckBx.Size = new System.Drawing.Size(117, 17);
-            this.snatchCheckBx.TabIndex = 34;
+            this.snatchCheckBx.TabIndex = 15;
             this.snatchCheckBx.Text = "Affected by Snatch";
-            this.flagsToolTip.SetToolTip(this.snatchCheckBx, "Allows this move to be stolen by snatch");
+            this.flagsToolTip.SetToolTip(this.snatchCheckBx, "Allows this move to be stolen by pokemon using snatch on the same turn");
             this.snatchCheckBx.UseVisualStyleBackColor = true;
             // 
             // mirrorMoveCheckBx
@@ -452,9 +466,9 @@
             this.mirrorMoveCheckBx.Location = new System.Drawing.Point(29, 121);
             this.mirrorMoveCheckBx.Name = "mirrorMoveCheckBx";
             this.mirrorMoveCheckBx.Size = new System.Drawing.Size(139, 17);
-            this.mirrorMoveCheckBx.TabIndex = 35;
+            this.mirrorMoveCheckBx.TabIndex = 16;
             this.mirrorMoveCheckBx.Text = "Affected by Mirror Move";
-            this.flagsToolTip.SetToolTip(this.mirrorMoveCheckBx, "Allows mirror move to copy this");
+            this.flagsToolTip.SetToolTip(this.mirrorMoveCheckBx, "Allows the move to be copied by pokemon using mirror move on the user");
             this.mirrorMoveCheckBx.UseVisualStyleBackColor = true;
             // 
             // kingsRockCheckBx
@@ -463,9 +477,10 @@
             this.kingsRockCheckBx.Location = new System.Drawing.Point(29, 144);
             this.kingsRockCheckBx.Name = "kingsRockCheckBx";
             this.kingsRockCheckBx.Size = new System.Drawing.Size(140, 17);
-            this.kingsRockCheckBx.TabIndex = 36;
+            this.kingsRockCheckBx.TabIndex = 17;
             this.kingsRockCheckBx.Text = "Affected by King\'s Rock";
-            this.flagsToolTip.SetToolTip(this.kingsRockCheckBx, "Applies the flinch chance of king\'s rock when held while this move is used");
+            this.flagsToolTip.SetToolTip(this.kingsRockCheckBx, "Applies the flinch chance of the king\'s rock if held while a pokemon uses this mo" +
+        "ve");
             this.kingsRockCheckBx.UseVisualStyleBackColor = true;
             // 
             // keepHPBarCheckBx
@@ -474,7 +489,7 @@
             this.keepHPBarCheckBx.Location = new System.Drawing.Point(29, 167);
             this.keepHPBarCheckBx.Name = "keepHPBarCheckBx";
             this.keepHPBarCheckBx.Size = new System.Drawing.Size(87, 17);
-            this.keepHPBarCheckBx.TabIndex = 37;
+            this.keepHPBarCheckBx.TabIndex = 18;
             this.keepHPBarCheckBx.Text = "Keep HP bar";
             this.flagsToolTip.SetToolTip(this.keepHPBarCheckBx, "Show the HP bar when the move animation is playing");
             this.keepHPBarCheckBx.UseVisualStyleBackColor = true;
@@ -485,7 +500,7 @@
             this.hideShadowCheckBx.Location = new System.Drawing.Point(29, 190);
             this.hideShadowCheckBx.Name = "hideShadowCheckBx";
             this.hideShadowCheckBx.Size = new System.Drawing.Size(88, 17);
-            this.hideShadowCheckBx.TabIndex = 38;
+            this.hideShadowCheckBx.TabIndex = 19;
             this.hideShadowCheckBx.Text = "Hide shadow";
             this.flagsToolTip.SetToolTip(this.hideShadowCheckBx, "Hide the shadow of the opposing pokemon while the move animation is playing");
             this.hideShadowCheckBx.UseVisualStyleBackColor = true;
@@ -505,8 +520,16 @@
             this.groupBox1.Location = new System.Drawing.Point(503, 187);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(200, 229);
-            this.groupBox1.TabIndex = 39;
+            this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
+            // 
+            // saveToRomToolStripMenuItem
+            // 
+            this.saveToRomToolStripMenuItem.Name = "saveToRomToolStripMenuItem";
+            this.saveToRomToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveToRomToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.saveToRomToolStripMenuItem.Text = "Save to Rom";
+            this.saveToRomToolStripMenuItem.Click += new System.EventHandler(this.saveToRomToolStripMenuItem_Click);
             // 
             // mainForm
             // 
@@ -601,6 +624,7 @@
         private System.Windows.Forms.CheckBox hideShadowCheckBx;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ToolTip flagsToolTip;
+        private System.Windows.Forms.ToolStripMenuItem saveToRomToolStripMenuItem;
     }
 }
 

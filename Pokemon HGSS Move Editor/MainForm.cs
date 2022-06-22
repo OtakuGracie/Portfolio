@@ -55,33 +55,15 @@ namespace PokemonHGSSMoveEditor
             }
         }
 
+
         private void resetButton_Click(object sender, EventArgs e)
         {
             (int[] oldMoveData, bool[] flags) = controller.getOldValues();
 
-            effectMaskTxtBx.Text = oldMoveData[Constants.EFFECTINDEX].ToString();
-            categoryComboBx.SelectedIndex = oldMoveData[Constants.CATEGORYINDEX];
-            powerMaskTxtBx.Text = oldMoveData[Constants.POWERINDEX].ToString();
-            typeComboBx.SelectedIndex = oldMoveData[Constants.TYPEINDEX];
-            accuracyMaskTxtBx.Text = oldMoveData[Constants.ACCURACYINDEX].ToString();
-            ppMaskTxtBx.Text = oldMoveData[Constants.PPINDEX].ToString();
-            effectChanceMaskTxtBx.Text = oldMoveData[Constants.EFFECTCHANCEINDEX].ToString();
-            targetComboBx.SelectedItem = (Target)oldMoveData[Constants.TARGETINDEX];
-            priorityMaskTxtBx.Text = ((sbyte)oldMoveData[Constants.PRIORITYINDEX]).ToString(); //priority has to be casted to signed byte so that negative priority values display correctly
-            contestEffectMaskTxtBx.Text = oldMoveData[Constants.CONTESTEFFECTINDEX].ToString();
-            contestConditionComboBx.SelectedIndex = oldMoveData[Constants.CONTESTCONDITIONINDEX];
-
-            contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
-            protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
-            magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
-            snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
-            mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
-            kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-            keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-            hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+            showMoveData(oldMoveData, flags);
         }
 
-        public void showMoveList(List<string> moveList)
+        private void showMoveList(List<string> moveList)
         {
             moveComboBx.Items.Clear();
 
@@ -93,7 +75,7 @@ namespace PokemonHGSSMoveEditor
             moveComboBx.EndUpdate();
         }
 
-        public void showMoveTypes(List<string> typeList)
+        private void showMoveTypes(List<string> typeList)
         {
             typeComboBx.Items.Clear();
 
@@ -103,9 +85,14 @@ namespace PokemonHGSSMoveEditor
             }
         }
 
-        public bool selectFile()
+        private bool selectFile()
         {
-            OpenFileDialog chooseFile = new OpenFileDialog();
+            OpenFileDialog chooseFile;
+            
+            //label for jumping to if the file is not readable or the wrong file
+            openFile:
+
+            chooseFile = new OpenFileDialog();
             chooseFile.Filter = "NDS Roms (*.nds)|*.nds|All files (*.*)|*.*";
             chooseFile.InitialDirectory = Directory.GetCurrentDirectory();
             chooseFile.FilterIndex = 0;
@@ -118,34 +105,19 @@ namespace PokemonHGSSMoveEditor
                     return false;
                 }
 
-                controller.loadMoveData(chooseFile.FileName);
+                //if the moveData can't be loaded (because of a problem reading the file) jump back to have the user select a new file
+                if (!controller.loadMoveData(chooseFile.FileName))
+                {
+                    goto openFile;
+                }
 
                 //checks if a move has been selected, which occurs only after the first time moveData is loaded, then all the current form text is discarded for the currently stored moveData
-                //this is done to prevent a bug in which the previous form text ends up stored as moveData after switching files while the move editor is open
+                //this is done to prevent a bug in which the previous form text ends up stored as moveData after opening a new file while the move editor is open
                 if (moveComboBx.SelectedIndex >= 0)
                 {
                     (int[] moveData, bool[] flags) = controller.getMoveData(moveComboBx.SelectedIndex);
 
-                    effectMaskTxtBx.Text = moveData[Constants.EFFECTINDEX].ToString();
-                    categoryComboBx.SelectedIndex = moveData[Constants.CATEGORYINDEX];
-                    powerMaskTxtBx.Text = moveData[Constants.POWERINDEX].ToString();
-                    typeComboBx.SelectedIndex = moveData[Constants.TYPEINDEX];
-                    accuracyMaskTxtBx.Text = moveData[Constants.ACCURACYINDEX].ToString();
-                    ppMaskTxtBx.Text = moveData[Constants.PPINDEX].ToString();
-                    effectChanceMaskTxtBx.Text = moveData[Constants.EFFECTCHANCEINDEX].ToString();
-                    targetComboBx.SelectedItem = (Target)moveData[Constants.TARGETINDEX];
-                    priorityMaskTxtBx.Text = moveData[Constants.PRIORITYINDEX].ToString(); 
-                    contestEffectMaskTxtBx.Text = moveData[Constants.CONTESTEFFECTINDEX].ToString();
-                    contestConditionComboBx.SelectedIndex = moveData[Constants.CONTESTCONDITIONINDEX];
-
-                    contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
-                    protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
-                    magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
-                    snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
-                    mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
-                    kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-                    keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-                    hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
+                    showMoveData(moveData, flags);
                 }
 
                 moveComboBx.SelectedIndex = 0;
@@ -163,38 +135,28 @@ namespace PokemonHGSSMoveEditor
         {
             MessageBox.Show(errorMsg);
         }
-        
+
+        public void displayError(string errorMsg, string exceptionMsg)
+        {
+            MessageBox.Show(errorMsg + "\n\n" + exceptionMsg);
+        }
+
 
         private void moveComboBx_SelectedValueChanged(object sender, EventArgs e)
         {
+            if (moveComboBx.SelectedIndex == -1)
+            {
+                moveComboBx.SelectedIndex = controller.getPreviousMoveIndex();
+            }
+            
             (int[] moveData, bool[] flags) = controller.getMoveData(moveComboBx.SelectedIndex);
 
             updateMoveData();
 
-            effectMaskTxtBx.Text = (moveData[Constants.EFFECTINDEX]).ToString();
-            categoryComboBx.SelectedIndex = moveData[Constants.CATEGORYINDEX];
-            powerMaskTxtBx.Text = (moveData[Constants.POWERINDEX]).ToString();
-            typeComboBx.SelectedIndex = moveData[Constants.TYPEINDEX];
-            accuracyMaskTxtBx.Text = (moveData[Constants.ACCURACYINDEX]).ToString();
-            ppMaskTxtBx.Text = (moveData[Constants.PPINDEX]).ToString();
-            effectChanceMaskTxtBx.Text = (moveData[Constants.EFFECTCHANCEINDEX]).ToString();
-            targetComboBx.SelectedItem = (Target)moveData[Constants.TARGETINDEX]; 
-            priorityMaskTxtBx.Text = (moveData[Constants.PRIORITYINDEX]).ToString();
-            contestEffectMaskTxtBx.Text = (moveData[Constants.CONTESTEFFECTINDEX]).ToString();
-            contestConditionComboBx.SelectedIndex = moveData[Constants.CONTESTCONDITIONINDEX];
-
-            contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
-            protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
-            magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
-            snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
-            mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
-            kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
-            keepHPBarCheckBx.Checked = flags[Constants.UNK1FLAGINDEX];
-            hideShadowCheckBx.Checked = flags[Constants.UNK2FLAGINDEX];
-
+            showMoveData(moveData, flags);
             controller.storeOldValues(moveData, flags);
 
-            //stores the index of the current move so that in updateMoveData() it can be retrieved after the selected move has changed
+            //stores the index of the current move so that it can be retrieved after the selected move has changed for updateMoveData()
             controller.setPreviousMoveIndex(moveComboBx.SelectedIndex);
         }
 
@@ -209,15 +171,15 @@ namespace PokemonHGSSMoveEditor
             {
                 moveData[Constants.EFFECTINDEX] = int.Parse(effectMaskTxtBx.Text);
                 moveData[Constants.CATEGORYINDEX] = (int)categoryComboBx.SelectedItem;
-                moveData[Constants.POWERINDEX] = byte.Parse(powerMaskTxtBx.Text);
-                moveData[Constants.TYPEINDEX] = (byte)typeComboBx.SelectedIndex;
-                moveData[Constants.ACCURACYINDEX] = byte.Parse(accuracyMaskTxtBx.Text);
-                moveData[Constants.PPINDEX] = byte.Parse(ppMaskTxtBx.Text);
-                moveData[Constants.EFFECTCHANCEINDEX] = byte.Parse(effectChanceMaskTxtBx.Text);
-                moveData[Constants.TARGETINDEX] = (byte)(int)targetComboBx.SelectedItem;
+                moveData[Constants.POWERINDEX] = int.Parse(powerMaskTxtBx.Text);
+                moveData[Constants.TYPEINDEX] = typeComboBx.SelectedIndex;
+                moveData[Constants.ACCURACYINDEX] = int.Parse(accuracyMaskTxtBx.Text);
+                moveData[Constants.PPINDEX] = int.Parse(ppMaskTxtBx.Text);
+                moveData[Constants.EFFECTCHANCEINDEX] = int.Parse(effectChanceMaskTxtBx.Text);
+                moveData[Constants.TARGETINDEX] = (int)targetComboBx.SelectedItem;
                 moveData[Constants.PRIORITYINDEX] = (byte)sbyte.Parse(priorityMaskTxtBx.Text);
-                moveData[Constants.CONTESTEFFECTINDEX] = byte.Parse(contestEffectMaskTxtBx.Text);
-                moveData[Constants.CONTESTCONDITIONINDEX] = (byte)(int)contestConditionComboBx.SelectedItem;
+                moveData[Constants.CONTESTEFFECTINDEX] = int.Parse(contestEffectMaskTxtBx.Text);
+                moveData[Constants.CONTESTCONDITIONINDEX] = (int)contestConditionComboBx.SelectedItem;
 
                 flags[Constants.CONTACTFLAGINDEX] = contactCheckBx.Checked;
                 flags[Constants.PROTECTFLAGINDEX] = protectCheckBx.Checked;
@@ -225,17 +187,41 @@ namespace PokemonHGSSMoveEditor
                 flags[Constants.SNATCHFLAGINDEX] = snatchCheckBx.Checked;
                 flags[Constants.MIRRORMOVEFLAGINDEX] = mirrorMoveCheckBx.Checked;
                 flags[Constants.KINGSROCKFLAGINDEX] = kingsRockCheckBx.Checked;
-                flags[Constants.UNK1FLAGINDEX] = keepHPBarCheckBx.Checked;
-                flags[Constants.UNK2FLAGINDEX] = hideShadowCheckBx.Checked;
+                flags[Constants.KEEPHPBARFLAGINDEX] = keepHPBarCheckBx.Checked;
+                flags[Constants.HIDESHADOWFLAGINDEX] = hideShadowCheckBx.Checked;
 
                 if (controller.updateMoveData(moveData, flags, controller.getPreviousMoveIndex()))
                 {
                     if (!this.Text.Contains("*"))
                     {
-                        this.Text = this.Text + "*";
+                        this.Text += "*";
                     }
                 }
             }
+        }
+
+        private void showMoveData(int[] moveData, bool[] flags)
+        {
+            effectMaskTxtBx.Text = (moveData[Constants.EFFECTINDEX]).ToString();
+            categoryComboBx.SelectedIndex = moveData[Constants.CATEGORYINDEX];
+            powerMaskTxtBx.Text = (moveData[Constants.POWERINDEX]).ToString();
+            typeComboBx.SelectedIndex = moveData[Constants.TYPEINDEX];
+            accuracyMaskTxtBx.Text = (moveData[Constants.ACCURACYINDEX]).ToString();
+            ppMaskTxtBx.Text = (moveData[Constants.PPINDEX]).ToString();
+            effectChanceMaskTxtBx.Text = (moveData[Constants.EFFECTCHANCEINDEX]).ToString();
+            targetComboBx.SelectedItem = (Target)moveData[Constants.TARGETINDEX];
+            priorityMaskTxtBx.Text = (moveData[Constants.PRIORITYINDEX]).ToString();
+            contestEffectMaskTxtBx.Text = (moveData[Constants.CONTESTEFFECTINDEX]).ToString();
+            contestConditionComboBx.SelectedIndex = moveData[Constants.CONTESTCONDITIONINDEX];
+
+            contactCheckBx.Checked = flags[Constants.CONTACTFLAGINDEX];
+            protectCheckBx.Checked = flags[Constants.PROTECTFLAGINDEX];
+            magicCoatCheckBx.Checked = flags[Constants.MAGICCOATFLAGINDEX];
+            snatchCheckBx.Checked = flags[Constants.SNATCHFLAGINDEX];
+            mirrorMoveCheckBx.Checked = flags[Constants.MIRRORMOVEFLAGINDEX];
+            kingsRockCheckBx.Checked = flags[Constants.KINGSROCKFLAGINDEX];
+            keepHPBarCheckBx.Checked = flags[Constants.KEEPHPBARFLAGINDEX];
+            hideShadowCheckBx.Checked = flags[Constants.HIDESHADOWFLAGINDEX];
         }
         
 
@@ -252,7 +238,7 @@ namespace PokemonHGSSMoveEditor
 
             if (chooseFile.ShowDialog() == DialogResult.OK)
             {
-                controller.saveToFile(chooseFile.FileName);
+                controller.saveToBinFile(chooseFile.FileName);
                 this.Text = this.Text.Replace("*", "");
             }
         }
@@ -311,7 +297,7 @@ namespace PokemonHGSSMoveEditor
 
         private void effectMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!int.TryParse(effectMaskTxtBx.Text, out _) || int.Parse(effectMaskTxtBx.Text) > byte.MaxValue)
+            if (!int.TryParse(effectMaskTxtBx.Text, out _) || int.Parse(effectMaskTxtBx.Text) > Constants.MAXEFFECTVALUE)
             {
                 effectMaskTxtBx.Text = controller.getOldValues().Item1[Constants.EFFECTINDEX].ToString();
             }
@@ -360,11 +346,12 @@ namespace PokemonHGSSMoveEditor
 
         private void contestEffectMaskTxtBx_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!int.TryParse(contestEffectMaskTxtBx.Text, out _) || int.Parse(contestEffectMaskTxtBx.Text) > byte.MaxValue)
+            if (!int.TryParse(contestEffectMaskTxtBx.Text, out _) || int.Parse(contestEffectMaskTxtBx.Text) > Constants.MAXCONTESTEFFECT || int.Parse(contestEffectMaskTxtBx.Text) < Constants.MINCONTESTEFFECT)
             {
                 contestEffectMaskTxtBx.Text = controller.getOldValues().Item1[Constants.CONTESTEFFECTINDEX].ToString();
             }
         }
+
 
         private void MainForm_FormClosing(Object sender, FormClosingEventArgs e)
         {
@@ -380,5 +367,22 @@ namespace PokemonHGSSMoveEditor
             }
         }
 
+        private void saveToRomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            updateMoveData();
+
+            var chooseFile = new OpenFileDialog
+            {
+                Filter = "Ninetendo DS Roms (*.nds*)|*.nds*",
+                InitialDirectory = Directory.GetCurrentDirectory(),
+                RestoreDirectory = true
+            };
+
+            if (chooseFile.ShowDialog() == DialogResult.OK)
+            {
+                controller.writeToRom(chooseFile.FileName);
+                this.Text = this.Text.Replace("*", "");
+            }
+        }
     }
 }
