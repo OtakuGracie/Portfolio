@@ -1,2 +1,2 @@
 # Portfolio
-projects of mine for display
+Projects from University classes to display
